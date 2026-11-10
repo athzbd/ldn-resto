@@ -1,0 +1,101 @@
+name: Sync from Google Maps
+
+# Daily: reads your shared Google Maps lists and mirrors them into the site —
+# new saves added, unsaves removed, list moves followed. Then, if the Places key
+# is set, links new places to Google, deletes confirmed permanent closures and
+# fetches opening hours for the new ones.
+#
+# Reading shared lists is unofficial (Google has no API for it). If Google
+# changes something and a list cannot be read, nothing on it is deleted and an
+# issue is opened. Run this by hand with "debug" on to see the raw response.
+
+on:
+  schedule:
+    - cron: '37 5 * * *'   # daily, 05:37 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Report only, do not commit'
+        type: boolean
+        default: false
+      debug:
+        description: 'Print the raw list responses'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write   # needed to dispatch the deploy workflow
+  issues: write
+
+concurrency:
+  group: data
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Read the shared lists
+        id: sync
+        run: |
+          ARGS=""
+          [ "${{ inputs.dry_run }}" = "true" ] && ARGS="$ARGS --dry-run"
+          [ "${{ inputs.debug }}" = "true" ] && ARGS="$ARGS --debug"
+          node scripts/sync-lists.mjs $ARGS
+
+      - name: Link new places, delete confirmed closures
+        id: resolve
+        if: env.GOOGLE_MAPS_API_KEY != '' && inputs.dry_run != true
+        run: node scripts/resolve-places.mjs
+
+      - name: Opening hours for new places
+        if: env.GOOGLE_MAPS_API_KEY != '' && inputs.dry_run != true
+        run: node scripts/check-places.mjs --new-only
+
+      - name: Commit
+        if: inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ADDED: ${{ steps.sync.outputs.added }}
+          UNSAVED: ${{ steps.sync.outputs.unsaved }}
+          REMOVED: ${{ steps.resolve.outputs.removed }}
+        run: |
+          git config user.name  "ldn-resto-bot"
+          git config user.email "actions@github.com"
+          if git diff --quiet data/places.json; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          {
+            echo "chore: sync from Google Maps"
+            [ -n "$ADDED" ]   && { echo; echo "Added:"; echo "$ADDED" | sed 's/^/- /'; }
+            [ -n "$UNSAVED" ] && { echo; echo "Unsaved in Maps:"; echo "$UNSAVED" | sed 's/^/- /'; }
+            [ -n "$REMOVED" ] && { echo; echo "Deleted as permanently closed:"; echo "$REMOVED" | sed 's/^/- /'; }
+            true
+          } > /tmp/msg
+          git add data/places.json
+          git commit -F /tmp/msg
+          git push
+          # A push made with GITHUB_TOKEN does not trigger other workflows.
+          gh workflow run deploy.yml
+
+      - name: Flag lists that could not be read
+        if: always() && steps.sync.outputs.failed_count != '' && steps.sync.outputs.failed_count != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FAILED: ${{ steps.sync.outputs.failed }}
+        run: |
+          TITLE="Google Maps list sync could not read a list"
+          if gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number' | grep -q .; then
+            echo "Issue already open."
+          else
+            gh issue create --title "$TITLE" --body "$(printf 'Nothing on these lists was deleted:\n\n%s\n\nCheck the list is still shared as \"anyone with the link\". If it is, Google has probably changed its page — run the Sync workflow with debug on and ask Claude to update scripts/lib/maplists.mjs.' "$FAILED")"
+          fi

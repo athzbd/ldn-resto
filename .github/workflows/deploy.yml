@@ -1,0 +1,55 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # The browser key is public by necessity, but keeping it out of git means
+      # it never lands in history and can be rotated from the repo settings.
+      - name: Inject the Maps browser key
+        env:
+          KEY: ${{ secrets.GOOGLE_MAPS_BROWSER_KEY }}
+        run: |
+          if [ -n "$KEY" ]; then
+            sed -i "s|__GOOGLE_MAPS_BROWSER_KEY__|$KEY|" assets/config.js
+            echo "Key injected."
+          else
+            echo "No GOOGLE_MAPS_BROWSER_KEY set — the map will show setup instructions."
+          fi
+
+      # GitHub Pages caches assets by URL, so a CSS/JS change can take ~10
+      # minutes to reach anyone who has already loaded the page. Stamping the
+      # commit SHA onto the asset URLs makes every deploy a fresh URL.
+      - name: Cache-bust the asset URLs
+        run: |
+          SHA="${GITHUB_SHA::8}"
+          sed -i "s|assets/styles.css|assets/styles.css?v=$SHA|" index.html
+          sed -i "s|assets/app.js|assets/app.js?v=$SHA|" index.html
+          sed -i "s|assets/config.js|assets/config.js?v=$SHA|" index.html
+          echo "Stamped assets with $SHA"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,318 @@
+{
+  "meta": {
+    "title": "LDN Resto 🇬🇧",
+    "subtitle": "Food and drink around London, curated by Athena Zbd",
+    "tips": [],
+    "defaultCenter": {
+      "lat": 51.5115,
+      "lng": -0.116
+    },
+    "defaultZoom": 12,
+    "takeoutNewestFirst": true
+  },
+  "lists": [
+    {
+      "id": "favourites",
+      "label": "Favourites",
+      "url": ""
+    },
+    {
+      "id": "want-to-go",
+      "label": "Want to go",
+      "url": ""
+    }
+  ],
+  "categories": [
+    {
+      "id": "coffee",
+      "label": "Coffee",
+      "icon": "☕️",
+      "types": [
+        "coffee_shop",
+        "cafe",
+        "coffee_roastery",
+        "coffee_stand"
+      ]
+    },
+    {
+      "id": "bakery",
+      "label": "Bakery",
+      "icon": "🥐",
+      "types": [
+        "bakery",
+        "bagel_shop",
+        "pastry_shop"
+      ]
+    },
+    {
+      "id": "brunch",
+      "label": "Brunch",
+      "icon": "🍳",
+      "types": [
+        "breakfast_restaurant",
+        "brunch_restaurant",
+        "diner"
+      ]
+    },
+    {
+      "id": "dessert",
+      "label": "Dessert",
+      "icon": "🍦",
+      "types": [
+        "ice_cream_shop",
+        "dessert_shop",
+        "dessert_restaurant",
+        "confectionery",
+        "chocolate_shop",
+        "donut_shop",
+        "candy_store"
+      ]
+    },
+    {
+      "id": "matcha",
+      "label": "Tea & matcha",
+      "icon": "🍵",
+      "types": [
+        "tea_house",
+        "bubble_tea_store"
+      ]
+    },
+    {
+      "id": "pubs",
+      "label": "Pubs",
+      "icon": "🍺",
+      "types": [
+        "pub",
+        "gastropub",
+        "beer_garden",
+        "brewpub",
+        "irish_pub"
+      ]
+    },
+    {
+      "id": "bars",
+      "label": "Bars",
+      "icon": "🍸",
+      "types": [
+        "bar",
+        "cocktail_bar",
+        "lounge_bar",
+        "night_club",
+        "sports_bar"
+      ]
+    },
+    {
+      "id": "wine",
+      "label": "Wine",
+      "icon": "🍷",
+      "types": [
+        "wine_bar",
+        "winery"
+      ]
+    },
+    {
+      "id": "japanese",
+      "label": "Japanese",
+      "icon": "🍣",
+      "types": [
+        "japanese_restaurant",
+        "ramen_restaurant",
+        "sushi_restaurant",
+        "japanese_izakaya_restaurant",
+        "japanese_curry_restaurant",
+        "tonkatsu_restaurant",
+        "yakiniku_restaurant",
+        "yakitori_restaurant"
+      ]
+    },
+    {
+      "id": "chinese",
+      "label": "Chinese",
+      "icon": "🥟",
+      "types": [
+        "chinese_restaurant",
+        "dim_sum_restaurant",
+        "cantonese_restaurant",
+        "sichuan_restaurant",
+        "hot_pot_restaurant",
+        "dumpling_restaurant",
+        "noodle_shop",
+        "taiwanese_restaurant"
+      ]
+    },
+    {
+      "id": "korean",
+      "label": "Korean",
+      "icon": "🇰🇷",
+      "types": [
+        "korean_restaurant",
+        "korean_barbecue_restaurant"
+      ]
+    },
+    {
+      "id": "se-asian",
+      "label": "SE Asian",
+      "icon": "🍜",
+      "types": [
+        "thai_restaurant",
+        "vietnamese_restaurant",
+        "malaysian_restaurant",
+        "indonesian_restaurant",
+        "filipino_restaurant",
+        "singaporean_restaurant",
+        "burmese_restaurant"
+      ]
+    },
+    {
+      "id": "indian",
+      "label": "South Asian",
+      "icon": "🍛",
+      "types": [
+        "indian_restaurant",
+        "pakistani_restaurant",
+        "bangladeshi_restaurant",
+        "sri_lankan_restaurant",
+        "nepalese_restaurant",
+        "south_indian_restaurant",
+        "north_indian_restaurant"
+      ]
+    },
+    {
+      "id": "middle-eastern",
+      "label": "Middle Eastern",
+      "icon": "🧆",
+      "types": [
+        "middle_eastern_restaurant",
+        "lebanese_restaurant",
+        "turkish_restaurant",
+        "persian_restaurant",
+        "israeli_restaurant",
+        "falafel_restaurant",
+        "kebab_shop"
+      ]
+    },
+    {
+      "id": "italian",
+      "label": "Italian",
+      "icon": "🍝",
+      "types": [
+        "italian_restaurant",
+        "pasta_shop"
+      ]
+    },
+    {
+      "id": "pizza",
+      "label": "Pizza",
+      "icon": "🍕",
+      "types": [
+        "pizza_restaurant"
+      ]
+    },
+    {
+      "id": "european",
+      "label": "European",
+      "icon": "🥖",
+      "types": [
+        "french_restaurant",
+        "spanish_restaurant",
+        "tapas_restaurant",
+        "greek_restaurant",
+        "mediterranean_restaurant",
+        "portuguese_restaurant",
+        "european_restaurant",
+        "british_restaurant",
+        "bistro"
+      ]
+    },
+    {
+      "id": "latin",
+      "label": "Latin American",
+      "icon": "🌮",
+      "types": [
+        "mexican_restaurant",
+        "latin_american_restaurant",
+        "peruvian_restaurant",
+        "brazilian_restaurant",
+        "argentinian_restaurant",
+        "taco_restaurant"
+      ]
+    },
+    {
+      "id": "african",
+      "label": "African & Caribbean",
+      "icon": "🌶️",
+      "types": [
+        "african_restaurant",
+        "ethiopian_restaurant",
+        "caribbean_restaurant",
+        "nigerian_restaurant"
+      ]
+    },
+    {
+      "id": "burgers",
+      "label": "Burgers",
+      "icon": "🍔",
+      "types": [
+        "hamburger_restaurant",
+        "american_restaurant",
+        "chicken_restaurant",
+        "fried_chicken_restaurant",
+        "sandwich_shop",
+        "deli"
+      ]
+    },
+    {
+      "id": "seafood",
+      "label": "Seafood",
+      "icon": "🦪",
+      "types": [
+        "seafood_restaurant",
+        "oyster_bar_restaurant",
+        "fish_and_chips_restaurant"
+      ]
+    },
+    {
+      "id": "grill",
+      "label": "Steak & grill",
+      "icon": "🥩",
+      "types": [
+        "steak_house",
+        "barbecue_restaurant",
+        "bar_and_grill"
+      ]
+    },
+    {
+      "id": "veggie",
+      "label": "Veggie",
+      "icon": "🥗",
+      "types": [
+        "vegan_restaurant",
+        "vegetarian_restaurant",
+        "salad_shop",
+        "juice_shop"
+      ]
+    },
+    {
+      "id": "fancy",
+      "label": "Fine dining",
+      "icon": "✨",
+      "types": [
+        "fine_dining_restaurant"
+      ]
+    },
+    {
+      "id": "markets",
+      "label": "Markets",
+      "icon": "🧺",
+      "types": [
+        "market",
+        "food_court",
+        "farmers_market"
+      ]
+    }
+  ],
+  "areas": [],
+  "places": [],
+  "elsewhere": [],
+  "removed": []
+}

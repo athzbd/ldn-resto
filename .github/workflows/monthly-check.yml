@@ -1,0 +1,76 @@
+name: Monthly place check
+
+# Refreshes opening hours and status. Places Google confirms are permanently
+# closed are deleted (their names go in the commit message). Closures on a
+# name-only match are not trusted enough to delete, so they open an issue.
+#
+# Cost: this fetches opening hours, which is Google's Enterprise tier for Place
+# Details — about 1,000 free calls a month. One call per place, once a month.
+on:
+  schedule:
+    - cron: '17 21 1 * *'   # 1st of the month, 21:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+concurrency:
+  group: data
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check every place against Google
+        id: check
+        if: env.GOOGLE_MAPS_API_KEY != ''
+        run: node scripts/check-places.mjs
+
+      - name: Commit
+        if: env.GOOGLE_MAPS_API_KEY != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REMOVED: ${{ steps.check.outputs.removed }}
+        run: |
+          git config user.name  "ldn-resto-bot"
+          git config user.email "actions@github.com"
+          if git diff --quiet data/places.json; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          {
+            echo "chore: monthly hours and status refresh"
+            if [ -n "$REMOVED" ]; then
+              echo
+              echo "Deleted as permanently closed:"
+              echo "$REMOVED" | sed 's/^/- /'
+            fi
+          } > /tmp/msg
+          git add data/places.json
+          git commit -F /tmp/msg
+          git push
+          gh workflow run deploy.yml
+
+      - name: Open an issue for unconfirmed closures
+        if: steps.check.outputs.flagged_count != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FLAGGED: ${{ steps.check.outputs.flagged }}
+        run: |
+          gh issue create \
+            --title "Google says these closed, but the match is by name only" \
+            --body "These were matched by name rather than by the id in your saved Maps link, so they were not deleted automatically:
+
+          $FLAGGED
+
+          They show a \"Reported closed\" badge. If one really has shut, delete it from data/places.json."

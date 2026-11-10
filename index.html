@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>LDN Resto</title>
+  <meta name="description" content="London food and drink recommendations — coffee, brunch, pubs, restaurants.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>📍</text></svg>">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script>
+    // Applied before first paint so a dark-mode visitor never sees a white flash.
+    try {
+      var t = localStorage.getItem('ldnrecs-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <div class="header-row">
+        <h1><button type="button" id="site-title" class="home-btn"
+                    aria-label="Clear all filters and go back to the top">LDN Resto</button></h1>
+        <button id="theme-toggle" class="theme-toggle" type="button"
+                aria-label="Switch between light and dark mode">🌙</button>
+      </div>
+      <p class="subtitle" id="site-subtitle"></p>
+      <ul class="tips" id="tips" hidden></ul>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="wrap">
+      <div class="search-row">
+        <div class="search-field">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input type="search" id="search" placeholder="Search places, areas, notes…" autocomplete="off"
+                 aria-label="Search places">
+        </div>
+        <div class="view-toggle" role="tablist" aria-label="View">
+          <button role="tab" id="tab-list" class="active" aria-selected="true">List</button>
+          <button role="tab" id="tab-map" aria-selected="false">Map</button>
+        </div>
+      </div>
+
+      <p class="group-label" id="cat-label">What are you after?</p>
+      <div class="chip-scroller">
+        <div class="chips" id="category-chips" role="group" aria-labelledby="cat-label"></div>
+      </div>
+
+      <p class="group-label" id="filter-label">Narrow it down</p>
+      <div class="filter-grid" role="group" aria-labelledby="filter-label">
+        <div class="select-wrap">
+          <span class="select-icon" aria-hidden="true">❤️</span>
+          <select id="list-filter" aria-label="Which saved list"></select>
+        </div>
+        <div class="select-wrap">
+          <span class="select-icon" aria-hidden="true">📍</span>
+          <select id="area-filter" aria-label="Filter by area">
+            <option value="">All areas</option>
+          </select>
+        </div>
+        <div class="select-wrap">
+          <span class="select-icon" aria-hidden="true">📅</span>
+          <select id="day-filter" aria-label="Open on which day"></select>
+        </div>
+        <div class="select-wrap">
+          <span class="select-icon" aria-hidden="true">🕐</span>
+          <select id="time-filter" aria-label="Open at what time"></select>
+        </div>
+        <div class="select-wrap">
+          <span class="select-icon" aria-hidden="true">🚶</span>
+          <select id="walk-filter" aria-label="Walking distance from you"></select>
+        </div>
+        <div class="select-wrap">
+          <span class="select-icon" aria-hidden="true">↕️</span>
+          <select id="sort" aria-label="Sort order"></select>
+        </div>
+      </div>
+
+      <div class="status-row">
+        <p class="result-count" id="result-count" role="status" aria-live="polite"></p>
+        <div class="status-actions">
+          <button id="clear-filters" class="link-btn" hidden>✕ Clear</button>
+          <button id="share" class="link-btn" aria-label="Share this view">🔗 Share</button>
+          <button id="surprise" class="surprise-btn">🎲 Surprise me</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section id="pick" class="pick" hidden aria-live="polite">
+      <div class="pick-head">
+        <p class="pick-label">🎲 How about…</p>
+        <div class="pick-actions">
+          <button id="pick-again" class="link-btn">Another</button>
+          <button id="pick-close" class="link-btn" aria-label="Close the suggestion">✕</button>
+        </div>
+      </div>
+      <ul class="cards pick-cards" id="pick-card"></ul>
+    </section>
+
+    <section id="list-view">
+      <ul class="cards" id="cards"></ul>
+      <p class="empty" id="empty" hidden>Nothing matches those filters.</p>
+    </section>
+
+    <section id="map-view" hidden>
+      <div id="map"></div>
+      <p class="map-fallback" id="map-fallback" hidden>
+        The map needs a Google Maps API key. See the README for setup — the list
+        works fine without it.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p id="last-updated"></p>
+      <p>Opening hours and closures come from Google and are refreshed monthly.
+         Walking times are estimates.</p>
+      <p><a href="https://github.com/athzbd/ldn-resto">Source on GitHub</a></p>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/@googlemaps/markerclusterer@2.5.3/dist/index.umd.js"></script>
+  <script src="assets/config.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

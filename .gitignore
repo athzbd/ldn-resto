@@ -1,0 +1,11 @@
+# Personal Claude Code settings (machine-specific, not shared)
+.claude/settings.local.json
+
+# macOS
+.DS_Store
+
+# Raw Google Takeout exports — they can include saves you would not publish
+# (home, work, holidays). Only the imported, London-only places.json is public.
+Takeout/
+takeout*/
+*.zip

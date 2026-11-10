@@ -1,0 +1,82 @@
+name: Resolve places
+
+# Runs by itself whenever places.json is pushed by hand (the daily sync does
+# its own linking),
+# and can be run by hand from the Actions tab. Links every new entry to its
+# Google place, deletes the ones Google confirms are permanently closed, sets
+# aside anything outside London, then fetches opening hours for the new ones.
+# Already-linked entries cost nothing: the scripts skip them.
+
+on:
+  push:
+    branches: [main]
+    paths: [data/places.json]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Preview matches without committing'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  actions: write   # needed to dispatch the deploy workflow
+
+concurrency:
+  group: data
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    # Without the Places key these steps skip; the site still works from the
+    # list data alone (names, notes, coordinates, areas).
+    env:
+      GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Link new places to Google
+        id: resolve
+        if: env.GOOGLE_MAPS_API_KEY != ''
+        run: |
+          ARGS=""
+          [ "${{ inputs.dry_run }}" = "true" ] && ARGS="--dry-run"
+          node scripts/resolve-places.mjs $ARGS
+
+      - name: Fetch opening hours for the new ones
+        if: env.GOOGLE_MAPS_API_KEY != '' && inputs.dry_run != true
+        run: node scripts/check-places.mjs --new-only
+
+      - name: Commit
+        if: inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REMOVED: ${{ steps.resolve.outputs.removed }}
+          SUMMARY: ${{ steps.resolve.outputs.summary }}
+        run: |
+          git config user.name  "ldn-resto-bot"
+          git config user.email "actions@github.com"
+          if git diff --quiet data/places.json; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          {
+            echo "chore: link places to Google"
+            echo
+            echo "$SUMMARY"
+            if [ -n "$REMOVED" ]; then
+              echo
+              echo "Deleted as permanently closed:"
+              echo "$REMOVED" | sed 's/^/- /'
+            fi
+          } > /tmp/msg
+          git add data/places.json
+          git commit -F /tmp/msg
+          git push
+          # A push made with GITHUB_TOKEN does not trigger other workflows,
+          # so the deploy has to be asked for or the site serves stale data.
+          gh workflow run deploy.yml
