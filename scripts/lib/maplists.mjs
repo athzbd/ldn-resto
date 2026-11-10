@@ -80,9 +80,17 @@ export async function listIdFrom(url, hops = 0) {
   const cont = (() => { try { return new URL(url).searchParams.get('continue'); } catch { return null; } })();
   if (cont) return listIdFrom(cont, hops + 1);
 
-  const res = await fetch(url, { redirect: 'manual', headers: HEADERS });
-  const next = res.headers.get('location');
-  if (next) return listIdFrom(new URL(next, url).href, hops + 1);
+  /* With a browser User-Agent, maps.app.goo.gl answers 200 with Firebase's
+     "durable deep link" page, which resolves the link in JavaScript — the list
+     id is not in the HTML. Plain HTTP clients get an ordinary 302, so try a
+     few User-Agents and take the first redirect. */
+  let res;
+  for (const ua of [HEADERS['User-Agent'], 'curl/8.5.0', 'Wget/1.21.4']) {
+    res = await fetch(url, { redirect: 'manual', headers: { ...HEADERS, 'User-Agent': ua } });
+    const next = res.headers.get('location');
+    if (next) return listIdFrom(new URL(next, url).href, hops + 1);
+    if (!/maps\.app\.goo\.gl|goo\.gl\//.test(url)) break;
+  }
 
   const body = await res.text();
   const inBody = listIdIn(body);
