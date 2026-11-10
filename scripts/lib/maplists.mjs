@@ -47,17 +47,32 @@ const LIST_ID_PATTERNS = [
   /!2s([A-Za-z0-9_-]{20,})!3e\d/,
 ];
 
+/* Undo the escaping a link picks up inside an HTML page or a script string:
+   %21, !, \x21, &#33;, \/ and friends. */
+function unescapeAll(text) {
+  return text
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/\\x([0-9a-fA-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(Number(d)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/&amp;/g, '&')
+    .replace(/\\\//g, '/')
+    .replace(/%([0-9a-fA-F]{2})/g, (_, h) => String.fromCharCode(parseInt(h, 16)));
+}
+
 function listIdIn(text) {
-  for (const re of LIST_ID_PATTERNS) {
-    const m = text.match(re);
-    if (m) return m[1];
+  for (const t of [text, unescapeAll(text), unescapeAll(unescapeAll(text))]) {
+    for (const re of LIST_ID_PATTERNS) {
+      const m = t.match(re);
+      if (m) return m[1];
+    }
   }
   return null;
 }
 
 /** The list id from a share link (maps.app.goo.gl/…) or a full list URL. */
 export async function listIdFrom(url, hops = 0) {
-  const direct = listIdIn(url) || listIdIn(decodeURIComponent(url));
+  const direct = listIdIn(url);
   if (direct) return direct;
   if (hops > 6) throw new Error(`too many redirects from ${url}`);
 
@@ -72,6 +87,15 @@ export async function listIdFrom(url, hops = 0) {
   const body = await res.text();
   const inBody = listIdIn(body);
   if (inBody) return inBody;
+
+  // Some short links answer 200 with a page that redirects by script or meta
+  // refresh; follow any Maps URL it names.
+  const onward = unescapeAll(body).match(/https:\/\/(?:www\.)?google\.[a-z.]+\/maps[^"'<>\s]*/);
+  if (onward && onward[0] !== url) return listIdFrom(onward[0], hops + 1);
+
+  if (process.argv.includes('--debug')) {
+    console.log(`--- body behind ${url} (HTTP ${res.status}) ---\n${body.slice(0, 1500)}`);
+  }
   throw new Error(`no list id found behind ${url} (HTTP ${res.status}) — is the list shared?`);
 }
 
