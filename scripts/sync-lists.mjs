@@ -60,6 +60,11 @@ for (const list of toSync) {
     }
 
     if (!parsed.places.length) throw new Error('no places found in the response (shape changed, or the list is empty)');
+    // A partial read would look like a wave of unsaves, so treat it as a failure.
+    if (parsed.total != null && parsed.read < parsed.total) {
+      throw new Error(`only ${parsed.read} of ${parsed.total} places came back — list skipped`);
+    }
+    if (parsed.unnamed) console.log(`  (${parsed.unnamed} unnamed save(s) on this list skipped — dropped pins have no name)`);
     if (!list.label && parsed.name) Object.assign(list, listFromFilename(parsed.name), { url: list.url });
     list.label ||= parsed.name || list.id;
     list.id ||= kebab(list.label);
