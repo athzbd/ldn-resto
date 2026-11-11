@@ -31259,6 +31259,28 @@
         "lat": 52.5660637,
         "lng": -0.31531359999999997
       }
+    },
+    {
+      "id": "orito-hartamas-kl",
+      "name": "Orito , Hartamas, KL",
+      "lists": [
+        "want-to-go"
+      ],
+      "categories": [],
+      "area": null,
+      "notes": "",
+      "tags": [],
+      "added": "2026-11-11",
+      "updated": "2026-11-11",
+      "source": {
+        "cid": "11856172897435235169",
+        "order": 0
+      },
+      "google": {
+        "placeId": null,
+        "lat": 3.1630051999999997,
+        "lng": 101.6564787
+      }
     }
   ],
   "removed": []
