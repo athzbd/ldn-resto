@@ -20101,6 +20101,50 @@
         "lat": 51.5192908,
         "lng": -0.0997332
       }
+    },
+    {
+      "id": "joey-s-cafe",
+      "name": "Joey's Cafe",
+      "lists": [
+        "want-to-go"
+      ],
+      "categories": [],
+      "area": "Victoria",
+      "notes": "",
+      "tags": [],
+      "added": "2026-11-11",
+      "updated": "2026-11-12",
+      "source": {
+        "cid": "15035033016110677922",
+        "order": 0
+      },
+      "google": {
+        "placeId": null,
+        "lat": 51.4926864,
+        "lng": -0.1473147
+      }
+    },
+    {
+      "id": "the-counter-coffee-and-lounge",
+      "name": "The Counter Coffee and Lounge",
+      "lists": [
+        "want-to-go"
+      ],
+      "categories": [],
+      "area": "The City",
+      "notes": "",
+      "tags": [],
+      "added": "2026-11-11",
+      "updated": "2026-11-12",
+      "source": {
+        "cid": "4758886453340866803",
+        "order": 1
+      },
+      "google": {
+        "placeId": null,
+        "lat": 51.5128214,
+        "lng": -0.0847454
+      }
     }
   ],
   "elsewhere": [
